@@ -146,7 +146,7 @@ spawn_timer = 0
 
 rodando = True
 game_over = False
-frozen_surface = None  
+telaparada = None  
 
 while rodando:
     clock.tick(FPS)
@@ -203,7 +203,7 @@ while rodando:
                 print("GAME OVER!")
                 morte_som.play()
             
-                frozen_surface = TELA.copy()
+                telaparada = TELA.copy()
                 game_over = True
 
     
@@ -220,16 +220,16 @@ while rodando:
 
     else:
       
-        if frozen_surface:
-            TELA.blit(frozen_surface, (0, 0))
+        if telaparada:
+            TELA.blit(telaparada, (0, 0))
         else:
         
             TELA.blit(fundo, (0, 0))
 
-        font_big = pygame.font.SysFont(None, 64)
-        font_small = pygame.font.SysFont(None, 28)
-        texto_morte = font_big.render("VOCÊ MORREU", True, (255, 0, 0))
-        instrucoes = font_small.render("Pressione R para reiniciar", True, (255, 255, 255))
+        textomaior = pygame.font.SysFont(None, 64)
+        textomenor = pygame.font.SysFont(None, 28)
+        texto_morte = textomaior.render("VOCÊ MORREU", True, (255, 0, 0))
+        instrucoes = textomenor.render("Pressione R para reiniciar", True, (255, 255, 255))
 
        
         rect_morte = texto_morte.get_rect(center=(LARGURA // 2, ALTURA // 2 - 20))
