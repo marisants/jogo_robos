@@ -10,7 +10,6 @@ pygame.display.set_caption("Robot Defense")
 fundo = pygame.image.load("fundo.jpg")
 fundo = pygame.transform.scale(fundo, (LARGURA, ALTURA))
 
-
 explosao = pygame.image.load("explosão.png")
 
 FPS = 60
@@ -70,7 +69,7 @@ class Tiro(Entidade):
 class Robo(Entidade):
     def __init__(self, x, y):
         super().__init__(x, y, velocidade=2)
-        self.image.fill((255,0,0))
+        self.image.fill((255, 0, 0))
 
     def atualizar_posicao(self):
         self.rect.y += self.velocidade
@@ -81,11 +80,12 @@ class Robo(Entidade):
             self.kill()
             self.image = explosao
 
+
 # ROBO EXEMPLO — ZigueZague
 class RoboZigueZague(Robo):
     def __init__(self, x, y):
         super().__init__(x, y)
-        self.image.fill((0,0,255))
+        self.image.fill((0, 0, 255))
         self.direcao = 1
         self.velocidade = 3
 
@@ -96,18 +96,41 @@ class RoboZigueZague(Robo):
         if self.rect.x <= 0 or self.rect.x >= LARGURA - 40:
             self.direcao *= -1
 
+
 class RoboRapido(Robo):
     def __init__(self, x, y):
         super().__init__(x, y)
-        self.image.fill((255,0,127))
+        self.image.fill((255, 0, 127))
         self.velocidade = 6
 
+
+# grupos e objetos iniciais
 todos_sprites = pygame.sprite.Group()
 inimigos = pygame.sprite.Group()
 tiros = pygame.sprite.Group()
 
+
+def reset_game():
+    global jogador, todos_sprites, inimigos, tiros, pontos, spawn_timer, game_over
+    # limpar grupos
+    todos_sprites.empty()
+    inimigos.empty()
+    tiros.empty()
+
+  
+    jogador = Jogador(LARGURA // 2, ALTURA - 60)
+    todos_sprites.add(jogador)
+
+ 
+    pontos = 0
+    spawn_timer = 0
+    game_over = False
+
+
+
 jogador = Jogador(LARGURA // 2, ALTURA - 60)
 todos_sprites.add(jogador)
+
 
 pygame.mixer.init()
 pygame.mixer.music.load("musica de fundo.mp3")
@@ -122,6 +145,9 @@ pontos = 0
 spawn_timer = 0
 
 rodando = True
+game_over = False
+frozen_surface = None  
+
 while rodando:
     clock.tick(FPS)
 
@@ -129,6 +155,19 @@ while rodando:
         if event.type == pygame.QUIT:
             rodando = False
 
+     
+        if game_over:
+            pygame.mixer.music.set_volume(0)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                
+                reset_game()
+                pygame.mixer.init()
+                pygame.mixer.music.load("musica de fundo.mp3")
+                pygame.mixer.music.set_volume(0.5)
+                pygame.mixer.music.play(-1)
+            continue
+
+      
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 tiro = Tiro(jogador.rect.centerx, jogador.rect.y)
@@ -136,46 +175,73 @@ while rodando:
                 tiros.add(tiro)
                 tiro_som.play()
 
-    # timer de entrada dos inimigos
-    spawn_timer += 1
-    if spawn_timer > 80:
-        x = random.randint(40, LARGURA - 40)
-        y = -40
-        escolha = random.randint(1,3)
-        if escolha == 1:
-            robo = Robo(x, y)
-        if escolha == 2:
-            robo = RoboZigueZague(x, y)
-        if escolha == 3:
-            robo = RoboRapido(x, y)
-        todos_sprites.add(robo)
-        inimigos.add(robo)
-        spawn_timer = 0
+    if not game_over:
+        # timer de entrada dos inimigos
+        spawn_timer += 1
+        if spawn_timer > 80:
+            x = random.randint(40, LARGURA - 40)
+            y = -40
+            escolha = random.randint(1, 3)
+            if escolha == 1:
+                robo = Robo(x, y)
+            if escolha == 2:
+                robo = RoboZigueZague(x, y)
+            if escolha == 3:
+                robo = RoboRapido(x, y)
+            todos_sprites.add(robo)
+            inimigos.add(robo)
+            spawn_timer = 0
 
+        # colisão tiro x robô
+        colisao = pygame.sprite.groupcollide(inimigos, tiros, True, True)
+        pontos += len(colisao)
 
-    # colisão tiro x robô
-    colisao = pygame.sprite.groupcollide(inimigos, tiros, True, True)
-    pontos += len(colisao)
+        # colisão robô x jogador
+        if pygame.sprite.spritecollide(jogador, inimigos, True):
+            jogador.vida -= 1
+            if jogador.vida <= 0:
+                print("GAME OVER!")
+                morte_som.play()
+            
+                frozen_surface = TELA.copy()
+                game_over = True
 
-    # colisão robô x jogador
-    if pygame.sprite.spritecollide(jogador, inimigos, True):
-        jogador.vida -= 1
-        if jogador.vida <= 0:
-            print("GAME OVER!")
-            morte_som.play()
-            rodando = False
+    
+        todos_sprites.update()
 
-    # atualizar
-    todos_sprites.update()
+    
+        TELA.blit(fundo, (0, 0))
+        todos_sprites.draw(TELA)
 
-    # desenhar
-    TELA.blit(fundo, (0,0))
-    todos_sprites.draw(TELA)
+        # Painel de pontos e vida
+        font = pygame.font.SysFont(None, 30)
+        texto = font.render(f"Vida: {jogador.vida}  |  Pontos: {pontos}", True, (255, 255, 255))
+        TELA.blit(texto, (10, 10))
 
-    #Painel de pontos e vida
-    font = pygame.font.SysFont(None, 30)
-    texto = font.render(f"Vida: {jogador.vida}  |  Pontos: {pontos}", True, (255, 255, 255))
-    TELA.blit(texto, (10, 10))
+    else:
+      
+        if frozen_surface:
+            TELA.blit(frozen_surface, (0, 0))
+        else:
+        
+            TELA.blit(fundo, (0, 0))
+
+        font_big = pygame.font.SysFont(None, 64)
+        font_small = pygame.font.SysFont(None, 28)
+        texto_morte = font_big.render("VOCÊ MORREU", True, (255, 0, 0))
+        instrucoes = font_small.render("Pressione R para reiniciar", True, (255, 255, 255))
+
+       
+        rect_morte = texto_morte.get_rect(center=(LARGURA // 2, ALTURA // 2 - 20))
+        rect_instr = instrucoes.get_rect(center=(LARGURA // 2, ALTURA // 2 + 30))
+
+       
+        sombra = pygame.Surface((rect_morte.width + 20, rect_morte.height + 20), pygame.SRCALPHA)
+        sombra.fill((0, 0, 0, 150))
+        TELA.blit(sombra, (rect_morte.x - 10, rect_morte.y - 10))
+
+        TELA.blit(texto_morte, rect_morte)
+        TELA.blit(instrucoes, rect_instr)
 
     pygame.display.flip()
 
