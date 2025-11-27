@@ -7,10 +7,10 @@ LARGURA = 1020
 ALTURA = 600
 TELA = pygame.display.set_mode((LARGURA, ALTURA))
 pygame.display.set_caption("Robot Defense")
-fundo = pygame.image.load("fundo.jpg")
+fundo = pygame.image.load("robo/fundo.jpg")
 fundo = pygame.transform.scale(fundo, (LARGURA, ALTURA))
 
-explosao = pygame.image.load("explosão.png")
+explosao = pygame.image.load("robo/explosão.png")
 
 FPS = 60
 clock = pygame.time.Clock()
@@ -33,7 +33,9 @@ class Entidade(pygame.sprite.Sprite):
 class Jogador(Entidade):
     def __init__(self, x, y):
         super().__init__(x, y, 5)
-        self.image.fill((0, 255, 0))  # verde
+        self.image = pygame.image.load("robo/player.png")
+        self.image = pygame.transform.scale(self.image, (100, 100))
+        self.rect = self.image.get_rect(center=(x, y))
         self.vida = 5
 
     def update(self):
@@ -49,15 +51,17 @@ class Jogador(Entidade):
             self.mover(self.velocidade, 0)
 
         # limites de tela
-        self.rect.x = max(0, min(self.rect.x, LARGURA - 40))
-        self.rect.y = max(0, min(self.rect.y, ALTURA - 40))
+        self.rect.x = max(0, min(self.rect.x, LARGURA - 20))
+        self.rect.y = max(0, min(self.rect.y, ALTURA - 95))
 
 
 # TIRO (DO JOGADOR)
 class Tiro(Entidade):
     def __init__(self, x, y):
         super().__init__(x, y, 10)
-        self.image.fill((255, 255, 0))  # amarelo
+        self.image = pygame.image.load("robo/tiro.png")
+        self.image = pygame.transform.scale(self.image, (40, 40))
+        self.rect = self.image.get_rect(center=(x, y))
 
     def update(self):
         self.rect.y -= self.velocidade
@@ -133,13 +137,13 @@ todos_sprites.add(jogador)
 
 
 pygame.mixer.init()
-pygame.mixer.music.load("musica de fundo.mp3")
+pygame.mixer.music.load("robo/musica de fundo.mp3")
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1)
 
-tiro_som = pygame.mixer.Sound("tiro.wav")
-morte_som = pygame.mixer.Sound("morte.wav")
-item_som = pygame.mixer.Sound("interação com item.wav")
+tiro_som = pygame.mixer.Sound("robo/tiro.wav")
+morte_som = pygame.mixer.Sound("robo/morte.wav")
+item_som = pygame.mixer.Sound("robo/interação com item.wav")
 
 pontos = 0
 spawn_timer = 0
@@ -162,7 +166,7 @@ while rodando:
                 
                 reset_game()
                 pygame.mixer.init()
-                pygame.mixer.music.load("musica de fundo.mp3")
+                pygame.mixer.music.load("robo/musica de fundo.mp3")
                 pygame.mixer.music.set_volume(0.5)
                 pygame.mixer.music.play(-1)
             continue
