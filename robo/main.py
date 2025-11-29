@@ -107,6 +107,42 @@ class RoboRapido(Robo):
         self.image.fill((255, 0, 127))
         self.velocidade = 6
 
+class RoboCiclico(Robo):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+        self.image.fill((0, 255, 0))
+
+    
+        self.base_x = x
+        self.base_y = y
+
+        self.raio = 100
+        self.vel_giro = 0.4
+       
+        self.tabela_x = [0, 1, 2, 3, 2, 1, 0, -1, -2, -3, -2, -1]
+        self.tabela_y = [-3, -2, -1, 0, 1, 2, 3, 2, 1, 0, -1, -2]
+
+        self.indice = 0
+        self.descida = 1
+
+    def atualizar_posicao(self):
+        
+        self.base_y += self.descida
+
+        self.indice = (self.indice + self.vel_giro) % len(self.tabela_x)
+        i = int(self.indice)
+
+        cx = self.tabela_x[i] * self.raio / 3
+        cy = self.tabela_y[i] * self.raio / 3
+
+        self.rect.x = self.base_x + cx
+        self.rect.y = self.base_y + cy
+
+ 
+        if self.rect.y > ALTURA:
+            self.kill()
+
+
 
 # grupos e objetos iniciais
 todos_sprites = pygame.sprite.Group()
@@ -185,13 +221,15 @@ while rodando:
         if spawn_timer > 80:
             x = random.randint(40, LARGURA - 40)
             y = -40
-            escolha = random.randint(1, 3)
+            escolha = random.randint(1, 4)
             if escolha == 1:
                 robo = Robo(x, y)
             if escolha == 2:
                 robo = RoboZigueZague(x, y)
             if escolha == 3:
                 robo = RoboRapido(x, y)
+            if escolha == 4:
+                robo = RoboCiclico(x, y)
             todos_sprites.add(robo)
             inimigos.add(robo)
             spawn_timer = 0
