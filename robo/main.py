@@ -7,10 +7,10 @@ LARGURA = 1020
 ALTURA = 600
 TELA = pygame.display.set_mode((LARGURA, ALTURA))
 pygame.display.set_caption("Robot Defense")
-fundo = pygame.image.load("robo/fundo.jpg")
+fundo = pygame.image.load("img/fundo.jpg")
 fundo = pygame.transform.scale(fundo, (LARGURA, ALTURA))
 
-explosao = pygame.image.load("robo/explosão.png")
+explosao = pygame.image.load("img/explosão.png")
 
 FPS = 60
 clock = pygame.time.Clock()
@@ -33,7 +33,7 @@ class Entidade(pygame.sprite.Sprite):
 class Jogador(Entidade):
     def __init__(self, x, y):
         super().__init__(x, y, 5)
-        self.image = pygame.image.load("robo/player.png")
+        self.image = pygame.image.load("img/player.png")
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect = self.image.get_rect(center=(x, y))
         self.vida = 5
@@ -59,7 +59,7 @@ class Jogador(Entidade):
 class Tiro(Entidade):
     def __init__(self, x, y):
         super().__init__(x, y, 10)
-        self.image = pygame.image.load("robo/tiro.png")
+        self.image = pygame.image.load("img/tiro.png")
         self.image = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.image.get_rect(center=(x, y))
 
@@ -173,13 +173,13 @@ todos_sprites.add(jogador)
 
 
 pygame.mixer.init()
-pygame.mixer.music.load("robo/musica de fundo.mp3")
+pygame.mixer.music.load("sons/musica de fundo.mp3")
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1)
 
-tiro_som = pygame.mixer.Sound("robo/tiro.wav")
-morte_som = pygame.mixer.Sound("robo/morte.wav")
-item_som = pygame.mixer.Sound("robo/interação com item.wav")
+tiro_som = pygame.mixer.Sound("sons/tiro.wav")
+morte_som = pygame.mixer.Sound("sons/morte.wav")
+item_som = pygame.mixer.Sound("sons/interação com item.wav")
 
 pontos = 0
 spawn_timer = 0
@@ -202,7 +202,7 @@ while rodando:
                 
                 reset_game()
                 pygame.mixer.init()
-                pygame.mixer.music.load("robo/musica de fundo.mp3")
+                pygame.mixer.music.load("sons/musica de fundo.mp3")
                 pygame.mixer.music.set_volume(0.5)
                 pygame.mixer.music.play(-1)
             continue
