@@ -1,5 +1,6 @@
 import pygame
 import random
+from typing import List
 
 pygame.init()
 
@@ -33,12 +34,31 @@ class Entidade(pygame.sprite.Sprite):
 class Jogador(Entidade):
     def __init__(self, x, y):
         super().__init__(x, y, 5)
-        self.image = pygame.image.load("img/player.png")
-        self.image = pygame.transform.scale(self.image, (100, 100))
+        self.sprites: List[pygame.Surface] = []
+
+        jogador1 = pygame.image.load("img/player.png").convert_alpha()
+        jogador2 = pygame.image.load("img/player2.png").convert_alpha()
+
+        jogador1 = pygame.transform.scale(jogador1, (80,80))  
+        jogador2 = pygame.transform.scale(jogador2, (80,80))
+
+        self.sprites.append(jogador1)
+        self.sprites.append(jogador2)
+
+        self.frame = 0
+
+        self.image = self.sprites[0]
+        self.rect = self.image.get_rect(center=(400, 600))
         self.rect = self.image.get_rect(center=(x, y))
         self.vida = 5
 
     def update(self):
+        self.frame += 0.1
+        if self.frame >= len(self.sprites):
+            self.frame = 0
+
+        self.image = self.sprites[int(self.frame)]
+
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_w]:
